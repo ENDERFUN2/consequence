@@ -1,5 +1,7 @@
 [package]
 name = "consequence"
+description = "Simple Rust library with a type \"Outcome\" - a Result-like three-state container for differentiating outcomes from runtime errors."
+license = "MIT"
 version = "0.1.0"
 edition = "2024"
 
