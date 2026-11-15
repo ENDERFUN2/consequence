@@ -1,4 +1,4 @@
-use std::{fmt::Debug, iter::FusedIterator, ops::{Deref, DerefMut}};
+use std::{fmt::Debug, iter::{FusedIterator, Product, Sum}, ops::{Deref, DerefMut}};
 
 use crate::outcome::Outcome::{Failure, Success, Error};
 
@@ -424,7 +424,7 @@ impl <S, F, E> Outcome<S, F, E> {
     /////////////////////////
 
 
-    /// Converts [`&Outcome<S, F, E>`] into [`Outcome<&S, &F, &E>`] 
+    /// Converts `&Outcome<S, F, E>` into `Outcome<&S, &F, &E>` 
     #[inline]
     #[must_use]
     pub const fn as_ref(&self) -> Outcome<&S, &F, &E> {
@@ -672,6 +672,37 @@ impl<'a, S, F, E> IntoIterator for &'a mut Outcome<S, F, E> {
         IterMut { inner: opt }
     }
 }
+
+impl<S, F, E, U: FromIterator<S>> FromIterator<Outcome<S, F, E>> for Outcome<U, F, E> {
+    fn from_iter<T: IntoIterator<Item = Outcome<S, F, E>>>(iter: T) -> Self {
+        let mut values = Vec::new();
+        
+        for outcome in iter {
+            match outcome {
+                Success(value) => values.push(value),
+                Failure(failure) => return Failure(failure),
+                Error(error) => return Error(error),
+            }
+        }
+        
+        Success(U::from_iter(values))
+    }
+}
+
+impl<S, F, E, U: Sum<S>> Sum<Outcome<S, F, E>> for Outcome<U, F, E> {
+    fn sum<I: Iterator<Item = Outcome<S, F, E>>>(iter: I) -> Self {
+        let outcome: Outcome<Vec<S>, F, E> = FromIterator::from_iter(iter);
+        outcome.map(|vec| vec.into_iter().sum())
+    }
+}
+
+impl<S, F, E, U: Product<S>> Product<Outcome<S, F, E>> for Outcome<U, F, E> {
+    fn product<I: Iterator<Item = Outcome<S, F, E>>>(iter: I) -> Self {
+        let outcome: Outcome<Vec<S>, F, E> = FromIterator::from_iter(iter);
+        outcome.map(|vec| vec.into_iter().product())
+    }
+}
+
 
 impl<S, F, E> From<Result<Result<S, F>, E>> for Outcome<S, F, E> {
     fn from(value: Result<Result<S, F>, E>) -> Self {
