@@ -6,8 +6,9 @@
 [![Documentation](https://docs.rs/consequence/badge.svg)](https://docs.rs/consequence)
 [![Downloads](https://img.shields.io/crates/d/consequence.svg)](https://crates.io/crates/consequence)
 [![License](https://img.shields.io/crates/l/consequence.svg)](https://github.com/ENDERFUN2/consequence/blob/main/LICENSE)
-</div>
+[![GitHub Repository](https://img.shields.io/badge/GitHub-consequence-0A0A0A?logo=github)](https://github.com/ENDERFUN2/consequence)
 
+</div>
 
 `consequence` provides yet another tri-state container type, `Outcome`, similar to `Result` and `Option`.
 
@@ -41,11 +42,11 @@ It is not intended as a general replacement for `Result`, but rather as a situat
 
 Consider a user registration operation. There are three possible scenarios:
 
-| Scenario | Outcome |
-|---|---|
-| The user was successfully registered. | `Success(user)` |
-| The username is already taken. | `Failure(reason)` |
-| The database connection could not be established. | `Error(error)` |
+| Scenario                                          | Outcome           |
+| ------------------------------------------------- | ----------------- |
+| The user was successfully registered.             | `Success(user)`   |
+| The username is already taken.                    | `Failure(reason)` |
+| The database connection could not be established. | `Error(error)`    |
 
 Notice that an already occupied username does not necessarily indicate that the registration operation itself failed. The operation executed correctly and determined that registration should be rejected.
 
@@ -123,15 +124,42 @@ assert_eq!(
 );
 ```
 
-### The `?` operator
+### The `?` operator and the `nightly` feature
 
-Note that because this library is stable, it does not support the `?` operator directly at the moment.
+Feature `nightly` allows the `Outcome` to return on `Outcome::Failure`/`Outcome::Error` by using
+the `?` operator, just like a `Result` or an `Option` does. It makes it way more convenient to use,
+in addition with `.into()` on `Result`s. Example:
 
-Once the [`try_trait_v2`](https://github.com/rust-lang/rust/issues/84277) feature stabilizes, this operator will probably be implemented.
+```rust
+#[derive(Debug, PartialEq)]
+pub struct Config {
+    pub port: u16,
+}
 
-For now, to achieve analogous behaviour, use `outcome.into_result()?`. See `Outcome::into_result`.
+#[derive(Debug, PartialEq)]
+pub enum ConfigFailure {
+    InvalidPort,
+    PortOutOfRange,
+}
 
----
+pub fn load_config(
+    path: impl AsRef<Path>,
+) -> Outcome<Config, ConfigFailure, std::io::Error> {
+    // Result<String, io::Error> -> Outcome<String, Failure, io::Error>
+    let contents: String = Outcome::from(std::fs::read_to_string(path))?;
+
+    // Result<u16, ParseIntError> -> Outcome<u16, Failure, ParseIntError>
+    let port: u16 = Outcome::from(
+        Ok(contents.trim().parse::<u16>()) // A simple trick that maps Result::Err into Outcome::Failure
+    ).map_failure(|_| ConfigFailure::InvalidPort)?;
+
+    if port < 1024 {
+        return Failure(ConfigFailure::PortOutOfRange);
+    }
+
+    Success(Config { port })
+}
+```
 
 # Method Overview
 
@@ -297,31 +325,31 @@ The methods below treat `Outcome` somewhat as if it were a boolean value.
 
 Returns `other` if `self` is `Success`, or returns `self` otherwise.
 
-| `self` | `other` | Output |
-|---|---|---|
-| `Success(s)` | Any variant | `other` |
-| `Failure(f)` | Ignored | `Failure(f)` |
-| `Error(e)` | Ignored | `Error(e)` |
+| `self`       | `other`     | Output       |
+| ------------ | ----------- | ------------ |
+| `Success(s)` | Any variant | `other`      |
+| `Failure(f)` | Ignored     | `Failure(f)` |
+| `Error(e)`   | Ignored     | `Error(e)`   |
 
 ### `or`
 
 Returns `other` if `self` is `Failure`, or returns `self` otherwise.
 
-| `self` | `other` | Output |
-|---|---|---|
-| `Success(s)` | Ignored | `Success(s)` |
-| `Failure(f)` | Any variant | `other` |
-| `Error(e)` | Ignored | `Error(e)` |
+| `self`       | `other`     | Output       |
+| ------------ | ----------- | ------------ |
+| `Success(s)` | Ignored     | `Success(s)` |
+| `Failure(f)` | Any variant | `other`      |
+| `Error(e)`   | Ignored     | `Error(e)`   |
 
 ### `or_error`
 
 Returns `other` if `self` is `Error`, or returns `self` otherwise.
 
-| `self` | `other` | Output |
-|---|---|---|
-| `Success(s)` | Ignored | `Success(s)` |
-| `Failure(f)` | Ignored | `Failure(f)` |
-| `Error(e)` | Any variant | `other` |
+| `self`       | `other`     | Output       |
+| ------------ | ----------- | ------------ |
+| `Success(s)` | Ignored     | `Success(s)` |
+| `Failure(f)` | Ignored     | `Failure(f)` |
+| `Error(e)`   | Any variant | `other`      |
 
 ### Chaining operations
 

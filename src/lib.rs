@@ -26,14 +26,15 @@
 //! `Outcome` is written in a very similar manner to `Result`, especially when it
 //! comes to its member functions which mimic `Result`'s behaviour to a great extent.
 //! 
-//! <div class="warning">
+//! # Features
 //! 
-//! Note that because this library is stable, it does not support the `?` operator
-//! at the moment. Once the [`try_trait_v2`](https://github.com/rust-lang/rust/issues/84277)
-//! feature stabilizes, this operator will probably be implemented. For now, to achieve analogous behaviour,
-//! use `outcome.into_result()?`. See [`Outcome::into_result`].
+//! - `nightly` - **requires nightly Rust toolchain to compile**. Adds support to the `?` operator.
 //! 
-//! </div>
+//! # `Nightly` feature
+//! 
+//! Feature `nightly` allows the [`Outcome`] to return on [`Outcome::Failure`]/[`Outcome::Error`] by using 
+//! the `?` operator, just like a [`Result`] or an [`Option`] does. It makes it way more convenient to use,
+//! in addition with .into() on `Result`s.
 //! 
 //! # Method overview
 //! 
