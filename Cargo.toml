@@ -2,11 +2,11 @@
 name = "consequence"
 description = "Simple Rust library with a type \"Outcome\" - a Result-like three-state container for differentiating outcomes from runtime errors."
 license = "MIT"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 
 [dependencies]
 
 [features]
-default = ["nightly"]
+default = []
 nightly = []
