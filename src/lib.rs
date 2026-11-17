@@ -143,4 +143,7 @@
 
 mod outcome;
 
+#[cfg(test)]
+mod test;
+
 pub use outcome::*;
