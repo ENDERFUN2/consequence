@@ -138,6 +138,7 @@
 //! Additionally there is a method [`Outcome::and_then`] that calls the passed-in function if 
 //! the [`Outcome`] is [`Outcome::Success`] or returns the outcome otherwise.
 
+#![cfg_attr(feature = "nightly", feature(try_trait_v2), feature(try_trait_v2_residual))]
 #[warn(missing_docs)]
 
 mod outcome;

@@ -4,7 +4,7 @@ use crate::outcome::Outcome::{Failure, Success, Error};
 
 
 /// `Outcome` is a type that represents a logic success ([`Success`]),
-/// a logic failure ([`Failure`]) or a runtime error ([`Error`]) 
+/// a logic failure ([`Failure`]) or a runtime error ([`Error`])
 #[derive(Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[must_use]
 pub enum Outcome<S, F, E> {
@@ -66,7 +66,7 @@ impl <S, F, E> Outcome<S, F, E> {
     pub const fn is_error(&self) -> bool {
         matches!(*self, Self::Error(_))
     }
-    
+
     /// Returns `true` if the outcome is [`Error`] and the contained value
     /// matches the supplied preducate
     #[inline]
@@ -78,16 +78,16 @@ impl <S, F, E> Outcome<S, F, E> {
             _ => false
         }
     }
-    
+
     //////////////////////////
     // Unwrapping functions //
     //////////////////////////
 
 
     /// Returns the contained [`Success`] value, consuming `self`, or panics with a provided message.
-    /// 
+    ///
     /// ### Panics
-    /// Panics if the value is not [`Success`] 
+    /// Panics if the value is not [`Success`]
     #[inline]
     pub fn expect(self, fail_msg: &str, err_msg: &str) -> S
     where
@@ -101,7 +101,7 @@ impl <S, F, E> Outcome<S, F, E> {
     }
 
     /// Returns the contained [`Success`] value, consuming `self`, or panics with a default message.
-    /// 
+    ///
     /// ### Panics
     /// Panics if the value is not [`Success`]
     #[inline]
@@ -125,7 +125,7 @@ impl <S, F, E> Outcome<S, F, E> {
         }
     }
 
-    
+
     /// Returns the contained [`Success`] value, consuming `self`, or returns a default value of type `S`
     #[inline]
     pub fn unwrap_or_default(self) -> S
@@ -138,7 +138,7 @@ impl <S, F, E> Outcome<S, F, E> {
     }
 
     /// Returns the contained [`Failure`] value, consuming `self`, or panics with a provided message.
-    /// 
+    ///
     /// ### Panics
     /// Panics if the value is not [`Failure`]
     #[inline]
@@ -155,7 +155,7 @@ impl <S, F, E> Outcome<S, F, E> {
     }
 
     /// Returns the contained [`Failure`] value, consuming `self`, or panics with a default message.
-    /// 
+    ///
     /// ### Panics
     /// Panics if the value is not [`Failure`]
     #[inline]
@@ -191,7 +191,7 @@ impl <S, F, E> Outcome<S, F, E> {
     }
 
     /// Returns the contained [`Error`] value, consuming `self`, or panics with a provided message.
-    /// 
+    ///
     /// ### Panics
     /// Panics if the value is not [`Error`]
     #[inline]
@@ -207,7 +207,7 @@ impl <S, F, E> Outcome<S, F, E> {
     }
 
     /// Returns the contained [`Error`] value, consuming `self`, or panics with a default message.
-    /// 
+    ///
     /// ### Panics
     /// Panics if the value is not [`Error`]
     #[inline]
@@ -229,8 +229,8 @@ impl <S, F, E> Outcome<S, F, E> {
     ////////////////////////////
 
     /// Converts [`Outcome<S, F, E>`] into [`Option<S>`]
-    /// 
-    /// Converts `self` into [`Some`] if [`Success`], or [`None`] otherwise 
+    ///
+    /// Converts `self` into [`Some`] if [`Success`], or [`None`] otherwise
     #[inline]
     #[must_use]
     pub fn success(self) -> Option<S> {
@@ -241,8 +241,8 @@ impl <S, F, E> Outcome<S, F, E> {
     }
 
     /// Converts [`Outcome<S, F, E>`] into [`Option<F>`]
-    /// 
-    /// Converts `self` into [`Some`] if [`Failure`], or [`None`] otherwise 
+    ///
+    /// Converts `self` into [`Some`] if [`Failure`], or [`None`] otherwise
     #[inline]
     #[must_use]
     pub fn failure(self) -> Option<F> {
@@ -253,8 +253,8 @@ impl <S, F, E> Outcome<S, F, E> {
     }
 
     /// Converts [`Outcome<S, F, E>`] into [`Option<E>`]
-    /// 
-    /// Converts `self` into [`Some`] if [`Error`], or [`None`] otherwise 
+    ///
+    /// Converts `self` into [`Some`] if [`Error`], or [`None`] otherwise
     #[inline]
     #[must_use]
     pub fn error(self) -> Option<E> {
@@ -265,7 +265,7 @@ impl <S, F, E> Outcome<S, F, E> {
     }
 
     /// Converts [`Outcome<S, F, E>`] into `Result<Result<S, F>, E>`
-    /// 
+    ///
     /// This is one of the less intuitional functions. The outer `Result`
     /// contains an information about whether the operation was successful or
     /// erroneous, whereas the inner `Result` tells if the operation ended with
@@ -320,7 +320,7 @@ impl <S, F, E> Outcome<S, F, E> {
         }
     }
 
-    
+
     /// Calls a function with a reference to the contained value of [`Failure`]
     #[inline]
     pub fn inspect_failure<G>(self, f: G) -> Self
@@ -355,7 +355,7 @@ impl <S, F, E> Outcome<S, F, E> {
     }
 
     /// Maps each value of [`Success`], [`Failure`] and [`Error`] at once.
-    /// 
+    ///
     /// This function is a functional equivalent of pattern-matching the `Outcome`.
     #[inline]
     pub fn map_all<U, I, H, G>(self, success: G, failure: H, error: I) -> U
@@ -382,7 +382,7 @@ impl <S, F, E> Outcome<S, F, E> {
             _ => default,
         }
     }
-    
+
     /// Applies a supplied function to the value if [`Success`] or returns the default value of type `S`
     #[inline]
     pub fn map_or_default<U, G>(self, op: G) -> U
@@ -424,7 +424,7 @@ impl <S, F, E> Outcome<S, F, E> {
     /////////////////////////
 
 
-    /// Converts `&Outcome<S, F, E>` into `Outcome<&S, &F, &E>` 
+    /// Converts `&Outcome<S, F, E>` into `Outcome<&S, &F, &E>`
     #[inline]
     #[must_use]
     pub const fn as_ref(&self) -> Outcome<&S, &F, &E> {
@@ -608,7 +608,7 @@ impl<S, F, E> Outcome<Option<S>, F, E> {
 }
 
 impl<S, F, E> Outcome<Outcome<S, F, E>, F, E> {
-    /// Converts from `Outcome<Outcome<S, F, E>, F, E>` to `Outcome<S, F, E>`. 
+    /// Converts from `Outcome<Outcome<S, F, E>, F, E>` to `Outcome<S, F, E>`.
     /// Keeps the topmost failure and error
     #[inline]
     pub fn flatten(self) -> Outcome<S, F, E> {
@@ -621,7 +621,7 @@ impl<S, F, E> Outcome<Outcome<S, F, E>, F, E> {
 }
 
 impl<S, F, E> Clone for Outcome<S, F, E>
-where 
+where
     S: Clone,
     F: Clone,
     E: Clone
@@ -676,7 +676,7 @@ impl<'a, S, F, E> IntoIterator for &'a mut Outcome<S, F, E> {
 impl<S, F, E, U: FromIterator<S>> FromIterator<Outcome<S, F, E>> for Outcome<U, F, E> {
     fn from_iter<T: IntoIterator<Item = Outcome<S, F, E>>>(iter: T) -> Self {
         let mut values = Vec::new();
-        
+
         for outcome in iter {
             match outcome {
                 Success(value) => values.push(value),
@@ -684,7 +684,7 @@ impl<S, F, E, U: FromIterator<S>> FromIterator<Outcome<S, F, E>> for Outcome<U, 
                 Error(error) => return Error(error),
             }
         }
-        
+
         Success(U::from_iter(values))
     }
 }
@@ -703,6 +703,14 @@ impl<S, F, E, U: Product<S>> Product<Outcome<S, F, E>> for Outcome<U, F, E> {
     }
 }
 
+impl<S, F, E> From<Result<S, E>> for Outcome<S, F, E> {
+    fn from(value: Result<S, E>) -> Self {
+        match value {
+            Ok(val) => Success(val),
+            Err(e) => Error(e),
+        }
+    }
+}
 
 impl<S, F, E> From<Result<Result<S, F>, E>> for Outcome<S, F, E> {
     fn from(value: Result<Result<S, F>, E>) -> Self {
@@ -813,3 +821,41 @@ impl<'a, T> DoubleEndedIterator for IterMut<'a, T> {
 impl<T> ExactSizeIterator for IterMut<'_, T> {}
 
 impl<T> FusedIterator for IterMut<'_, T> {}
+
+//////////////////
+// Unstable API //
+//////////////////
+
+#[cfg(feature = "nightly")]
+impl<S, F, E> std::ops::Try for Outcome<S, F, E> {
+    type Output = S;
+
+    type Residual = Outcome<!, F, E>;
+
+    fn from_output(output: Self::Output) -> Self {
+        Success(output)
+    }
+
+    fn branch(self) -> std::ops::ControlFlow<Self::Residual, Self::Output> {
+        match self {
+            Success(s) => std::ops::ControlFlow::Continue(s),
+            Failure(f) => std::ops::ControlFlow::Break(Failure(f)),
+            Error(e) => std::ops::ControlFlow::Break(Error(e)),
+        }
+    }
+}
+
+#[cfg(feature = "nightly")]
+impl<S, F, E> std::ops::Residual<S> for Outcome<!, F, E> {
+    type TryType = Outcome<S, F, E>;
+}
+
+#[cfg(feature = "nightly")]
+impl<S, F, E> std::ops::FromResidual<Outcome<!, F, E>> for Outcome<S, F, E> {
+    fn from_residual(residual: Outcome<!, F, E>) -> Self {
+        match residual {
+            Failure(f) => Failure(From::from(f)),
+            Error(e) => Error(From::from(e)),
+        }
+    }
+}
